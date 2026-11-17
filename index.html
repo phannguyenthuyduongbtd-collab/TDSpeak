@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TDSpeak – Luyện nói tiếng Anh & Flashcard SRS</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-soft: #eef3fb;
+      --primary: #1d4ed8;
+      --primary-dark: #1e3a8a;
+      --primary-light: #dbeafe;
+      --accent: #059669;
+      --accent-light: #d1fae5;
+      --warn: #d97706;
+      --warn-light: #fef3c7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #dbe3ef;
+      --radius: 16px;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 92px;
+    }
+
+    /* Top Header */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--text);
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, #1d4ed8, #059669);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+    .due-pill {
+      background: var(--warn-light);
+      color: #92400e;
+      border: 1px solid #fde68a;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      max-width: 1080px;
+      margin: 14px auto 0;
+      padding: 0 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      flex: 1 1 180px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.18s ease;
+    }
+    .nav-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 6px 16px rgba(29, 78, 216, 0.22);
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 18px auto 0;
+      padding: 0 16px;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 55%, #059669 100%);
+      color: #fff;
+      border: none;
+    }
+    .hero h2 { margin: 0 0 6px; font-size: 1.35rem; }
+    .hero p { margin: 0; opacity: 0.92; font-size: 0.95rem; }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .between { justify-content: space-between; }
+
+    .subtabs {
+      display: inline-flex;
+      background: var(--surface-soft);
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .subtab {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .subtab.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .topic-chip {
+      text-align: left;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .topic-chip.active {
+      border-color: var(--primary);
+      background: #eff6ff;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.12);
+    }
+    .topic-chip .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+    .topic-chip .t-title { font-weight: 700; font-size: 0.98rem; color: var(--text); }
+    .topic-chip .t-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-warn { background: var(--warn); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-soft {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+    .btn-sm { padding: 6px 10px; font-size: 0.82rem; border-radius: 8px; }
+
+    input[type="text"], input[type="password"], input[type="search"], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .ipa {
+      font-family: "JetBrains Mono", Consolas, monospace;
+      color: var(--primary-dark);
+      background: var(--surface-soft);
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      display: inline-block;
+      margin: 6px 0;
+    }
+    .vi-note { color: var(--muted); font-size: 0.9rem; }
+
+    .eval-box {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+    }
+    .word-token {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 8px;
+      margin: 3px 4px 3px 0;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .tok-ok { background: var(--accent-light); color: #065f46; }
+    .tok-near { background: var(--warn-light); color: #92400e; }
+    .tok-bad { background: var(--danger-light); color: #991b1b; }
+
+    .score-pill {
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    /* Vocab grid */
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .vocab-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .pos-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--surface-soft);
+      color: var(--primary-dark);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .srs-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .srs-due { background: var(--warn-light); color: #92400e; }
+    .srs-ok { background: var(--accent-light); color: #065f46; }
+
+    /* Flashcard */
+    .flashcard-wrap {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .flashcard {
+      background: linear-gradient(160deg, #ffffff 0%, #f1f6ff 100%);
+      border: 2px solid #bfdbfe;
+      border-radius: 22px;
+      min-height: 250px;
+      padding: 28px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      user-select: none;
+    }
+    .flashcard .fc-word {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    /* Games */
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .quiz-opt {
+      padding: 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: left;
+    }
+    .quiz-opt.correct { background: var(--accent-light); border-color: var(--accent); color: #065f46; }
+    .quiz-opt.wrong { background: var(--danger-light); border-color: var(--danger); color: #991b1b; }
+
+    .tile-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    .letter-tile {
+      min-width: 42px;
+      height: 44px;
+      border-radius: 10px;
+      border: 1.5px solid #93c5fd;
+      background: #eff6ff;
+      color: var(--primary-dark);
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+    .letter-tile.placed {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th { color: var(--muted); font-size: 0.82rem; text-transform: uppercase; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 60;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 18px;
+      max-width: 480px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+    }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; color: var(--muted); }
+
+    /* Floating AI Reflex Button ("Bạn thân 1-1") */
+    .floating-ai-btn {
+      position: fixed;
+      right: 22px;
+      bottom: 24px;
+      z-index: 45;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #1e40af 0%, #059669 100%);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.8rem;
+      box-shadow: 0 12px 28px rgba(29, 78, 216, 0.38);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+    .floating-ai-btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 14px 32px rgba(29, 78, 216, 0.45);
+    }
+
+    /* Fullscreen ChatGPT Voice Mode Overlay ("Bạn thân 1-1") */
+    .voice-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 20px 32px;
+      background: radial-gradient(circle at 50% 42%, #132248 0%, #091124 52%, #040711 100%);
+      color: #fff;
+    }
+    .voice-overlay.open { display: flex; }
+
+    .voice-topbar {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .voice-status-badge {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 0.2px;
+    }
+    .voice-key-toggle {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .voice-key-drawer {
+      width: 100%;
+      max-width: 460px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+    .voice-key-drawer.open { display: block; }
+    .voice-key-drawer input {
+      background: rgba(2, 6, 23, 0.7);
+      border-color: rgba(148, 163, 184, 0.35);
+      color: #fff;
+    }
+    .voice-key-drawer p {
+      margin: 0 0 8px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+    }
+
+    .voice-orb-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      gap: 18px;
+    }
+    .orb-button {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .orb-halo {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(96, 165, 250, 0.45) 0%, rgba(29, 78, 216, 0.15) 55%, transparent 72%);
+      transition: transform 0.25s ease, background 0.35s ease;
+      animation: orbBreath 2.4s ease-in-out infinite;
+    }
+    .orb-core {
+      position: relative;
+      width: 152px;
+      height: 152px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 30%, #ffffff 0%, #60a5fa 42%, #1d4ed8 100%);
+      box-shadow: 0 0 55px rgba(59, 130, 246, 0.65);
+      transition: transform 0.18s ease, background 0.35s ease, box-shadow 0.35s ease;
+    }
+    .orb-button[data-phase="listening"] .orb-halo {
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.5) 0%, rgba(5, 150, 105, 0.18) 55%, transparent 72%);
+      animation: orbListen 1.2s ease-in-out infinite;
+    }
+    .orb-button[data-phase="listening"] .orb-core {
+      background: radial-gradient(circle at 34% 30%, #ffffff 0%, #34d399 42%, #059669 100%);
+      box-shadow: 0 0 65px rgba(16, 185, 129, 0.78);
+    }
+    .orb-button[data-phase="speaking"] .orb-halo {
+      background: radial-gradient(circle, rgba(96, 165, 250, 0.58) 0%, rgba(37, 99, 235, 0.2) 55%, transparent 72%);
+      animation: orbSpeak 0.85s ease-in-out infinite;
+    }
+    .orb-button[data-phase="speaking"] .orb-core {
+      background: radial-gradient(circle at 34% 30%, #ffffff 0%, #93c5fd 40%, #2563eb 100%);
+      box-shadow: 0 0 70px rgba(96, 165, 250, 0.85);
+    }
+    .orb-button[data-phase="thinking"] .orb-halo {
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.52) 0%, rgba(109, 40, 217, 0.18) 55%, transparent 72%);
+      animation: orbSpeak 1.1s ease-in-out infinite;
+    }
+    .orb-button[data-phase="thinking"] .orb-core {
+      background: radial-gradient(circle at 34% 30%, #ffffff 0%, #c4b5fd 42%, #6d28d9 100%);
+      box-shadow: 0 0 65px rgba(139, 92, 246, 0.8);
+    }
+
+    @keyframes orbBreath {
+      0%, 100% { transform: scale(0.95); }
+      50% { transform: scale(1.06); }
+    }
+    @keyframes orbListen {
+      0%, 100% { transform: scale(0.96); }
+      50% { transform: scale(1.13); }
+    }
+    @keyframes orbSpeak {
+      0%, 100% { transform: scale(0.94); }
+      50% { transform: scale(1.16); }
+    }
+
+    .voice-error {
+      max-width: 420px;
+      background: rgba(239, 68, 68, 0.22);
+      border: 1px solid rgba(252, 165, 165, 0.4);
+      color: #fecaca;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.86rem;
+      text-align: center;
+      display: none;
+    }
+    .voice-error.show { display: block; }
+
+    .voice-controls {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .voice-ctrl-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      color: #fff;
+      font-size: 1.45rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.14s ease;
+    }
+    .voice-ctrl-btn:active { transform: scale(0.94); }
+    .voice-mic-btn { background: rgba(255, 255, 255, 0.18); }
+    .voice-mic-btn.active { background: #10b981; }
+    .voice-end-btn { background: #dc2626; }
+
+    @media (max-width: 640px) {
+      .nav-tabs { display: none; }
+      .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-top: 1px solid var(--border);
+        z-index: 40;
+        padding: 6px 8px;
+        gap: 6px;
+      }
+      .mobile-bottom-nav .nav-btn {
+        flex: 1;
+        padding: 8px 6px;
+        font-size: 0.78rem;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .floating-ai-btn {
+        bottom: 84px;
+        right: 16px;
+      }
+    }
+    .mobile-bottom-nav { display: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-badge">TD</span>
+        <span>TDSpeak</span>
+      </div>
+      <div class="row">
+        <label style="font-size:0.84rem;color:var(--muted);font-weight:600;">
+          Tốc độ đọc:
+          <select id="ttsRate" style="width:auto;padding:4px 8px;font-size:0.84rem;">
+            <option value="0.75">0.75x (Chậm)</option>
+            <option value="0.95" selected>0.95x (Chuẩn)</option>
+            <option value="1.15">1.15x (Nhanh)</option>
+          </select>
+        </label>
+        <button class="due-pill" onclick="switchTab('vocab'); setVocabSection('flashcard');">
+          Ôn SRS: <span id="dueCountTop">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav-tabs" aria-label="Điều hướng chính">
+    <button class="nav-btn active" data-tab="speaking" onclick="switchTab('speaking')">🎙️ Luyện nói AI & Tài liệu</button>
+    <button class="nav-btn" data-tab="vocab" onclick="switchTab('vocab')">📘 Sổ tay & Flashcard</button>
+    <button class="nav-btn" data-tab="games" onclick="switchTab('games')">🎮 Kho trò chơi & BXH</button>
+  </nav>
+
+  <main class="container">
+    <!-- TAB 1: SPEAKING -->
+    <section id="panel-speaking" class="panel active">
+      <div class="card hero">
+        <h2>Luyện nói tiếng Anh 15 phút đầu giờ</h2>
+        <p>Luyện nói theo chủ đề với phiên âm IPA, nghe phát âm chuẩn Web Speech API và chấm điểm từng từ (xanh: đúng, vàng: gần đúng, đỏ: sai/thiếu).</p>
+      </div>
+
+      <div class="subtabs">
+        <button class="subtab active" id="sub-topics" onclick="setSpeakingSection('topics')">Chủ đề giao tiếp</button>
+        <button class="subtab" id="sub-docs" onclick="setSpeakingSection('docs')">Nhập tài liệu phát âm</button>
+      </div>
+
+      <div id="speaking-topics-view">
+        <div class="topic-grid" id="topicList"></div>
+        <div id="promptList"></div>
+      </div>
+
+      <div id="speaking-docs-view" style="display:none;">
+        <div class="card">
+          <h3 style="margin-top:0;">Nhập đoạn văn hoặc tải file .txt</h3>
+          <p class="vi-note" style="margin-top:0;">Hệ thống tự động tách thành từng câu ngắn để bạn luyện nghe và chấm phát âm lần lượt.</p>
+          <textarea id="docInput" rows="4" placeholder="Dán đoạn văn tiếng Anh vào đây... Ví dụ: Protecting the environment starts with small daily habits. Students can save electricity and plant more trees."></textarea>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn btn-primary" onclick="splitDocumentSentences()">Tách câu luyện đọc</button>
+            <label class="btn btn-outline" style="cursor:pointer;">
+              📂 Chọn file .txt
+              <input type="file" accept=".txt" style="display:none;" onchange="loadTxtFile(event)" />
+            </label>
+          </div>
+        </div>
+        <div id="docSentenceList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: VOCAB & FLASHCARD SRS -->
+    <section id="panel-vocab" class="panel">
+      <div class="row between" style="margin-bottom:12px;">
+        <div class="subtabs" style="margin-bottom:0;">
+          <button class="subtab active" id="vsub-notebook" onclick="setVocabSection('notebook')">Sổ tay từ vựng (<span id="totalWordsCount">0</span>)</button>
+          <button class="subtab" id="vsub-flashcard" onclick="setVocabSection('flashcard')">Flashcard SRS (<span id="dueWordsCount">0</span>)</button>
+        </div>
+        <button class="btn btn-primary" onclick="openWordModal()">+ Thêm từ mới</button>
+      </div>
+
+      <div id="vocab-notebook-view">
+        <div class="card">
+          <div class="row">
+            <input type="search" id="vocabSearch" placeholder="Tìm từ tiếng Anh hoặc nghĩa tiếng Việt..." oninput="renderVocabList()" style="flex:1 1 240px;" />
+            <select id="vocabFilter" onchange="renderVocabList()" style="width:auto;min-width:160px;">
+              <option value="all">Tất cả từ vựng</option>
+              <option value="due">Đến hạn ôn SRS</option>
+              <option value="mastered">Đã thuộc (3-7 ngày)</option>
+            </select>
+          </div>
+        </div>
+        <div class="vocab-grid" id="vocabGrid"></div>
+      </div>
+
+      <div id="vocab-flashcard-view" style="display:none;">
+        <div class="flashcard-wrap" id="flashcardContainer"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: GAMES & LEADERBOARD & EXCEL -->
+    <section id="panel-games" class="panel">
+      <div class="card row between">
+        <div>
+          <h3 style="margin:0;">Kho trò chơi ôn tập từ vựng</h3>
+          <div class="vi-note">Chơi minigame từ sổ tay, lưu điểm vào Bảng xếp hạng và xuất file Excel (.csv).</div>
+        </div>
+        <div class="row">
+          <input type="text" id="playerName" value="Học sinh TD" style="width:150px;" aria-label="Tên người chơi" />
+          <button class="btn btn-accent" onclick="exportVocabCsv()">📥 Xuất Excel (.csv)</button>
+        </div>
+      </div>
+
+      <div class="subtabs">
+        <button class="subtab active" data-game="quiz" onclick="selectGame('quiz')">Quiz 4 đáp án</button>
+        <button class="subtab" data-game="fill" onclick="selectGame('fill')">Điền từ</button>
+        <button class="subtab" data-game="dictation" onclick="selectGame('dictation')">Nghe & Gõ</button>
+        <button class="subtab" data-game="scramble" onclick="selectGame('scramble')">Xếp chữ</button>
+        <button class="subtab" data-game="leaderboard" onclick="selectGame('leaderboard')">🏆 Bảng xếp hạng</button>
+      </div>
+
+      <div id="gameStage" class="card"></div>
+    </section>
+  </main>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav" aria-label="Điều hướng di động">
+    <button class="nav-btn active" data-tab="speaking" onclick="switchTab('speaking')">🎙️<span>Luyện nói</span></button>
+    <button class="nav-btn" data-tab="vocab" onclick="switchTab('vocab')">📘<span>Từ vựng</span></button>
+    <button class="nav-btn" data-tab="games" onclick="switchTab('games')">🎮<span>Trò chơi</span></button>
+  </nav>
+
+  <!-- Floating AI Reflex Button ("Bạn thân 1-1") -->
+  <button class="floating-ai-btn" onclick="openVoiceMode()" title="Gọi Bạn thân 1-1">
+    <span style="font-size:1.25rem;line-height:1;">✨</span>
+    <span>1-1 AI</span>
+  </button>
+
+  <!-- Minimalist Voice Mode Overlay ("Bạn thân 1-1" - no conversation text on screen) -->
+  <div class="voice-overlay" id="voiceOverlay" role="dialog" aria-modal="true" aria-label="Bạn thân 1-1 Voice Mode">
+    <div class="voice-topbar">
+      <span class="voice-status-badge" id="voiceStatusLabel">Bạn thân 1-1 • Sẵn sàng</span>
+      <button class="voice-key-toggle" onclick="toggleApiKeyDrawer()">🔑 API Key</button>
+    </div>
+
+    <div class="voice-key-drawer" id="voiceKeyDrawer">
+      <p>Dán Gemini API Key của bạn (chỉ lưu cục bộ trong trình duyệt <code>localStorage</code>, không lưu lên GitHub):</p>
+      <div class="row">
+        <input type="password" id="geminiApiKeyInput" placeholder="Dán Gemini API Key tại đây..." style="flex:1;" />
+        <button class="btn btn-primary btn-sm" onclick="saveGeminiKey()">Lưu & Bắt đầu</button>
+      </div>
+    </div>
+
+    <div class="voice-orb-stage">
+      <button class="orb-button" id="voiceOrb" data-phase="idle" onclick="handleOrbTap()" aria-label="Khối cầu thoại Bạn thân 1-1">
+        <span class="orb-halo"></span>
+        <span class="orb-core" id="orbCore"></span>
+      </button>
+      <div class="voice-error" id="voiceErrorBox"></div>
+    </div>
+
+    <div class="voice-controls">
+      <button class="voice-ctrl-btn voice-mic-btn" id="voiceMicBtn" onclick="toggleVoiceMic()" aria-label="Bật hoặc tắt micro">🎤</button>
+      <button class="voice-ctrl-btn voice-end-btn" onclick="closeVoiceMode()" aria-label="Tắt cuộc gọi">📞</button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Word Modal -->
+  <div class="modal-backdrop" id="wordModal">
+    <div class="modal">
+      <h3 id="modalTitle" style="margin-top:0;">Thêm từ vựng mới</h3>
+      <input type="hidden" id="editWordId" />
+      <div class="field">
+        <label>Từ tiếng Anh *</label>
+        <input type="text" id="fWord" placeholder="vd: resilience" />
+      </div>
+      <div class="row">
+        <div class="field" style="flex:1;">
+          <label>Từ loại</label>
+          <select id="fPos">
+            <option value="noun">noun</option>
+            <option value="verb">verb</option>
+            <option value="adj">adj</option>
+            <option value="adv">adv</option>
+            <option value="phrase">phrase</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Phiên âm IPA</label>
+          <input type="text" id="fPhonetic" placeholder="/rɪˈzɪliəns/" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Nghĩa tiếng Việt *</label>
+        <input type="text" id="fMeaning" placeholder="sự kiên cường" />
+      </div>
+      <div class="field">
+        <label>Câu ví dụ tiếng Anh</label>
+        <input type="text" id="fExample" placeholder="She showed great resilience during the exam." />
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:14px;">
+        <button class="btn btn-outline" onclick="closeWordModal()">Hủy</button>
+        <button class="btn btn-primary" onclick="saveWord()">Lưu từ vựng</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_VOCAB = "tdspeak_web_vocab_v1";
+    const STORAGE_LEADERBOARD = "tdspeak_web_leaderboard_v1";
+    const STORAGE_GEMINI_KEY = "tdspeak_gemini_api_key";
+    const GEMINI_MODELS = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
+
+    const TOPICS = [
+      {
+        id: "intro",
+        titleVi: "Giới thiệu bản thân",
+        subtitleVi: "15 phút đầu giờ • Làm quen",
+        badge: "Cơ bản",
+        prompts: [
+          {
+            id: "intro_1",
+            questionEn: "Can you introduce yourself and tell us what grade you are in?",
+            questionVi: "Bạn có thể giới thiệu bản thân và cho biết bạn đang học lớp mấy không?",
+            sampleEn: "Hello everyone, my name is Minh and I am a high school student in grade ten.",
+            ipa: "/həˈləʊ ˈevriwʌn, maɪ neɪm ɪz mɪn ænd aɪ æm ə ˈhaɪ skuːl ˈstjuːdnt ɪn ɡreɪd ten/",
+            sampleVi: "Xin chào mọi người, mình tên là Minh và mình là học sinh trung học phổ thông lớp 10."
+          },
+          {
+            id: "intro_2",
+            questionEn: "Why do you want to improve your English speaking skills?",
+            questionVi: "Tại sao bạn muốn cải thiện kỹ năng nói tiếng Anh?",
+            sampleEn: "Speaking English fluently opens great opportunities to study abroad and connect with the world.",
+            ipa: "/ˈspiːkɪŋ ˈɪŋɡlɪʃ ˈfluːəntli ˈəʊpənz ɡreɪt ˌɒpəˈtjuːnətiz tuː ˈstʌdi əˈbrɔːd ænd kəˈnekt wɪð ðə wɜːld/",
+            sampleVi: "Nói tiếng Anh trôi chảy mở ra nhiều cơ hội tuyệt vời để du học và kết nối với thế giới."
+          }
+        ]
+      },
+      {
+        id: "school",
+        titleVi: "Trường học",
+        subtitleVi: "Môn học & hoạt động lớp",
+        badge: "Quen thuộc",
+        prompts: [
+          {
+            id: "school_1",
+            questionEn: "What is your favorite subject at school and why?",
+            questionVi: "Môn học yêu thích của bạn ở trường là gì và tại sao?",
+            sampleEn: "My favorite subject is English because it allows me to explore new cultures.",
+            ipa: "/maɪ ˈfeɪvərɪt ˈsʌbdʒɪkt ɪz ˈɪŋɡlɪʃ bɪˈkɒz ɪt əˈlaʊz miː tuː ɪkˈsplɔː njuː ˈkʌltʃəz/",
+            sampleVi: "Môn học yêu thích của mình là tiếng Anh vì nó giúp mình khám phá những nền văn hóa mới."
+          },
+          {
+            id: "school_2",
+            questionEn: "How do you usually prepare for an important exam?",
+            questionVi: "Bạn thường chuẩn bị cho một kỳ thi quan trọng như thế nào?",
+            sampleEn: "I make a study schedule and review key vocabulary with flashcards every evening.",
+            ipa: "/aɪ meɪk ə ˈstʌdi ˈʃedjuːl ænd rɪˈvjuː kiː vəˈkæbjələri wɪð ˈflæʃkɑːdz ˈevri ˈiːvnɪŋ/",
+            sampleVi: "Mình lập thời gian biểu học tập và ôn tập từ vựng trọng tâm bằng flashcard mỗi tối."
+          }
+        ]
+      },
+      {
+        id: "hobbies",
+        titleVi: "Sở thích",
+        subtitleVi: "Giải trí, thể thao & đọc sách",
+        badge: "Giao tiếp",
+        prompts: [
+          {
+            id: "hobby_1",
+            questionEn: "What do you enjoy doing in your free time after school?",
+            questionVi: "Bạn thích làm gì vào thời gian rảnh sau giờ học?",
+            sampleEn: "In my free time, I love listening to podcasts and playing badminton with friends.",
+            ipa: "/ɪn maɪ friː taɪm, aɪ lʌv ˈlɪsnɪŋ tuː ˈpɒdkɑːsts ænd ˈpleɪɪŋ ˈbædmɪntən wɪð frendz/",
+            sampleVi: "Vào thời gian rảnh, mình thích nghe podcast và chơi cầu lông cùng bạn bè."
+          },
+          {
+            id: "hobby_2",
+            questionEn: "Do you prefer reading books or watching movies in English?",
+            questionVi: "Bạn thích đọc sách hay xem phim bằng tiếng Anh hơn?",
+            sampleEn: "I prefer watching short movies because I can learn natural pronunciation and daily expressions.",
+            ipa: "/aɪ prɪˈfɜː ˈwɒtʃɪŋ ʃɔːt ˈmuːviz bɪˈkɒz aɪ kæn lɜːn ˈnætʃrəl prəˌnʌnsiˈeɪʃn ænd ˈdeɪli ɪkˈspreʃnz/",
+            sampleVi: "Mình thích xem phim ngắn hơn vì có thể học phát âm tự nhiên và các cách diễn đạt hằng ngày."
+          }
+        ]
+      },
+      {
+        id: "environment",
+        titleVi: "Bảo vệ môi trường",
+        subtitleVi: "Sống xanh & tái chế",
+        badge: "Trọng tâm",
+        prompts: [
+          {
+            id: "env_1",
+            questionEn: "What small actions can students take to protect the environment?",
+            questionVi: "Học sinh có thể làm những hành động nhỏ nào để bảo vệ môi trường?",
+            sampleEn: "Students can bring reusable water bottles and recycle paper waste in every classroom.",
+            ipa: "/ˈstjuːdnts kæn brɪŋ ˌriːˈjuːzəbl ˈwɔːtə ˈbɒtlz ænd ˌriːˈsaɪkl ˈpeɪpə weɪst ɪn ˈevri ˈklɑːsruːm/",
+            sampleVi: "Học sinh có thể mang bình nước dùng nhiều lần và tái chế giấy vụn ở mỗi lớp học."
+          },
+          {
+            id: "env_2",
+            questionEn: "Why is planting more trees important for our city?",
+            questionVi: "Tại sao việc trồng thêm nhiều cây xanh lại quan trọng đối với thành phố?",
+            sampleEn: "Planting trees reduces air pollution, provides shade, and creates a healthier living space.",
+            ipa: "/ˈplɑːntɪŋ triːz rɪˈdjuːsɪz eə pəˈluːʃn, prəˈvaɪdz ʃeɪd, ænd kriˈeɪts ə ˈhelθiə ˈlɪvɪŋ speɪs/",
+            sampleVi: "Trồng cây giúp giảm ô nhiễm không khí, tạo bóng mát và mang lại không gian sống lành mạnh hơn."
+          }
+        ]
+      },
+      {
+        id: "technology",
+        titleVi: "Công nghệ & Học tập",
+        subtitleVi: "Thiết bị số & tự học",
+        badge: "Hiện đại",
+        prompts: [
+          {
+            id: "tech_1",
+            questionEn: "How do digital apps help you learn English more effectively?",
+            questionVi: "Các ứng dụng số giúp bạn học tiếng Anh hiệu quả hơn như thế nào?",
+            sampleEn: "Learning apps let me practice pronunciation anytime and remember vocabulary with spaced repetition.",
+            ipa: "/ˈlɜːnɪŋ æps let miː ˈpræktɪs prəˌnʌnsiˈeɪʃn ˈenitaɪm ænd rɪˈmembə vəˈkæbjələri wɪð speɪst ˌrepəˈtɪʃn/",
+            sampleVi: "Ứng dụng học tập giúp mình luyện phát âm mọi lúc và nhớ từ vựng bằng lặp lại ngắt quãng."
+          }
+        ]
+      }
+    ];
+
+    const DEFAULT_VOCAB = [
+      { id: 1, word: "environment", pos: "noun", phonetic: "/ɪnˈvaɪrənmənt/", meaning: "môi trường", example: "We must protect our natural environment for future generations.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 2, word: "confidence", pos: "noun", phonetic: "/ˈkɒnfɪdəns/", meaning: "sự tự tin", example: "Practicing every day builds my confidence when speaking English.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 3, word: "volunteer", pos: "verb", phonetic: "/ˌvɒlənˈtɪə(r)/", meaning: "tình nguyện", example: "Many students volunteer to clean the local park every Sunday.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 4, word: "sustainable", pos: "adj", phonetic: "/səˈsteɪnəbl/", meaning: "bền vững", example: "Solar power is a clean and sustainable source of energy.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 5, word: "curriculum", pos: "noun", phonetic: "/kəˈrɪkjələm/", meaning: "chương trình học", example: "Our school curriculum includes both science and communication skills.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 6, word: "collaborate", pos: "verb", phonetic: "/kəˈlæbəreɪt/", meaning: "hợp tác, làm việc nhóm", example: "Classmates often collaborate on group presentations after school.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 7, word: "enthusiastic", pos: "adj", phonetic: "/ɪnˌθjuːziˈæstɪk/", meaning: "nhiệt huyết, hào hứng", example: "She is very enthusiastic about joining the English speaking club.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 8, word: "recycle", pos: "verb", phonetic: "/ˌriːˈsaɪkl/", meaning: "tái chế", example: "Remember to recycle plastic bottles and paper at school.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 9, word: "achievement", pos: "noun", phonetic: "/əˈtʃiːvmənt/", meaning: "thành tựu", example: "Winning the debate contest was her proudest achievement this year.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 10, word: "concentrate", pos: "verb", phonetic: "/ˈkɒnsntreɪt/", meaning: "tập trung", example: "A quiet library helps me concentrate better on my homework.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 11, word: "creativity", pos: "noun", phonetic: "/ˌkriːeɪˈtɪvəti/", meaning: "sự sáng tạo", example: "Drawing and music encourage creativity among high school students.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 12, word: "fluently", pos: "adv", phonetic: "/ˈfluːəntli/", meaning: "một cách trôi chảy", example: "With daily shadowing, you can speak English much more fluently.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 13, word: "pollution", pos: "noun", phonetic: "/pəˈluːʃn/", meaning: "sự ô nhiễm", example: "Riding bicycles to school helps reduce air pollution in cities.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 14, word: "responsibility", pos: "noun", phonetic: "/rɪˌspɒnsəˈbɪləti/", meaning: "trách nhiệm", example: "Protecting nature is a shared responsibility for everyone.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 15, word: "opportunity", pos: "noun", phonetic: "/ˌɒpəˈtjuːnəti/", meaning: "cơ hội", example: "This exchange program is a great opportunity to make new friends.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 },
+      { id: 16, word: "improve", pos: "verb", phonetic: "/ɪmˈpruːv/", meaning: "cải thiện", example: "Listening to short podcasts will quickly improve your pronunciation.", nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 }
+    ];
+
+    let vocabList = loadVocab();
+    let leaderboard = loadLeaderboard();
+    let selectedTopicId = TOPICS[0].id;
+    let docSentences = [];
+    let evalMap = {};
+    let flashcardFlipped = false;
+    let currentGame = "quiz";
+    let gameState = {};
+    let quizTimer = null;
+
+    function loadVocab() {
+      try {
+        const raw = localStorage.getItem(STORAGE_VOCAB);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (_) {}
+      localStorage.setItem(STORAGE_VOCAB, JSON.stringify(DEFAULT_VOCAB));
+      return JSON.parse(JSON.stringify(DEFAULT_VOCAB));
+    }
+    function saveVocab() {
+      localStorage.setItem(STORAGE_VOCAB, JSON.stringify(vocabList));
+      updateDueCounts();
+    }
+    function loadLeaderboard() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_LEADERBOARD) || "[]"); }
+      catch (_) { return []; }
+    }
+    function pushLeaderboard(gameLabel, score, total) {
+      const player = (document.getElementById("playerName").value || "Học sinh TD").trim();
+      leaderboard.unshift({ player, game: gameLabel, score, total, date: new Date().toLocaleString("vi-VN") });
+      leaderboard = leaderboard.slice(0, 20);
+      localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(leaderboard));
+    }
+
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) {
+        alert("Trình duyệt này chưa hỗ trợ Text-to-Speech.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "en-US";
+      utter.rate = parseFloat(document.getElementById("ttsRate").value || "0.95");
+      window.speechSynthesis.speak(utter);
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      document.getElementById("panel-" + tab).classList.add("active");
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+      if (tab === "vocab") { renderVocabList(); renderFlashcard(); }
+      if (tab === "games" && !gameState.initialized) selectGame(currentGame);
+    }
+
+    function setSpeakingSection(sec) {
+      document.getElementById("sub-topics").classList.toggle("active", sec === "topics");
+      document.getElementById("sub-docs").classList.toggle("active", sec === "docs");
+      document.getElementById("speaking-topics-view").style.display = sec === "topics" ? "block" : "none";
+      document.getElementById("speaking-docs-view").style.display = sec === "docs" ? "block" : "none";
+    }
+
+    function renderTopics() {
+      document.getElementById("topicList").innerHTML = TOPICS.map(t => `
+        <button class="topic-chip ${t.id === selectedTopicId ? "active" : ""}" onclick="selectTopic('${t.id}')">
+          <span class="badge">${t.badge}</span>
+          <div class="t-title">${t.titleVi}</div>
+          <div class="t-sub">${t.subtitleVi}</div>
+        </button>
+      `).join("");
+      const topic = TOPICS.find(t => t.id === selectedTopicId) || TOPICS[0];
+      document.getElementById("promptList").innerHTML = topic.prompts.map(p => renderPromptCard(p.id, p.questionEn, p.questionVi, p.sampleEn, p.ipa, p.sampleVi)).join("");
+    }
+    function selectTopic(id) { selectedTopicId = id; renderTopics(); }
+
+    function renderPromptCard(key, qEn, qVi, sampleEn, ipa, sampleVi) {
+      const ev = evalMap[key];
+      const encodedSample = encodeURIComponent(sampleEn);
+      return `
+        <div class="card">
+          ${qEn ? `<div style="font-weight:700;font-size:1rem;color:var(--primary-dark);">${escapeHtml(qEn)}</div>` : ""}
+          ${qVi ? `<div class="vi-note" style="margin-bottom:10px;">${escapeHtml(qVi)}</div>` : ""}
+          <div style="font-weight:700;font-size:1.05rem;">${escapeHtml(sampleEn)}</div>
+          ${ipa ? `<div class="ipa">${escapeHtml(ipa)}</div>` : ""}
+          ${sampleVi ? `<div class="vi-note">${escapeHtml(sampleVi)}</div>` : ""}
+          <div class="row" style="margin-top:12px;">
+            <button class="btn btn-soft btn-sm" onclick="speakText(decodeURIComponent('${encodedSample}'))">🔊 Nghe mẫu</button>
+            <button class="btn btn-primary btn-sm" onclick="recordAndEvaluate('${key}', decodeURIComponent('${encodedSample}'))">🎤 Bấm nói để chấm điểm</button>
+            <button class="btn btn-outline btn-sm" onclick="manualEvaluate('${key}', decodeURIComponent('${encodedSample}'))">⌨️ Nhập thử câu</button>
+          </div>
+          ${ev ? renderEvalBox(ev) : ""}
+        </div>
+      `;
+    }
+
+    function renderEvalBox(ev) {
+      const tokensHtml = ev.tokens.map(t => `<span class="word-token ${t.cls}">${escapeHtml(t.word)}</span>`).join("");
+      return `
+        <div class="eval-box">
+          <div class="row between" style="margin-bottom:8px;">
+            <span class="score-pill">Điểm: ${ev.score}/100</span>
+            <span class="vi-note">Bạn đọc: "${escapeHtml(ev.spoken)}"</span>
+          </div>
+          <div>${tokensHtml}</div>
+          <div style="margin-top:8px;font-weight:600;font-size:0.9rem;color:var(--text);">${escapeHtml(ev.feedback)}</div>
+        </div>
+      `;
+    }
+
+    function recordAndEvaluate(key, targetSentence) {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        manualEvaluate(key, targetSentence, "Trình duyệt chưa hỗ trợ thu âm trực tiếp, hãy nhập câu bạn đọc để chấm thử:");
+        return;
+      }
+      const rec = new SpeechRec();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onresult = (e) => {
+        const spoken = e.results[0][0].transcript || "";
+        evalMap[key] = evaluatePronunciation(targetSentence, spoken);
+        renderTopics();
+        renderDocSentences();
+      };
+      rec.onerror = (e) => {
+        alert("Không thu được giọng nói (" + e.error + "). Bạn có thể dùng nút 'Nhập thử câu' để kiểm tra.");
+      };
+      rec.start();
+    }
+
+    function manualEvaluate(key, targetSentence, promptMsg) {
+      const spoken = prompt(promptMsg || "Nhập câu tiếng Anh bạn vừa đọc để chấm điểm:", "");
+      if (spoken === null) return;
+      evalMap[key] = evaluatePronunciation(targetSentence, spoken);
+      renderTopics();
+      renderDocSentences();
+    }
+
+    function normalizeWord(w) { return w.toLowerCase().replace(/[^a-z0-9']/g, ""); }
+    function levenshtein(a, b) {
+      const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+      for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+      for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+      for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+        }
+      }
+      return dp[a.length][b.length];
+    }
+
+    function evaluatePronunciation(target, spoken) {
+      const targetWords = target.trim().split(/\s+/).filter(Boolean);
+      const spokenSet = spoken.trim().split(/\s+/).map(normalizeWord).filter(Boolean);
+      let points = 0;
+      const tokens = targetWords.map(raw => {
+        const clean = normalizeWord(raw);
+        if (!clean) return { word: raw, cls: "tok-ok" };
+        if (spokenSet.includes(clean)) { points += 1; return { word: raw, cls: "tok-ok" }; }
+        const near = spokenSet.some(s => {
+          const d = levenshtein(clean, s);
+          return (clean.length <= 5 && d === 1) || (clean.length >= 6 && d <= 2);
+        });
+        if (near) { points += 0.6; return { word: raw, cls: "tok-near" }; }
+        return { word: raw, cls: "tok-bad" };
+      });
+      const score = targetWords.length ? Math.round((points / targetWords.length) * 100) : 0;
+      let feedback = "Cố gắng đọc rõ từng từ màu đỏ và nghe lại mẫu nhé!";
+      if (score >= 90) feedback = "Tuyệt vời! Phát âm rất chuẩn và tự tin.";
+      else if (score >= 70) feedback = "Khá tốt! Chú ý thêm những từ màu vàng/đỏ để trọn vẹn hơn.";
+      return { score, spoken, tokens, feedback };
+    }
+
+    function splitDocumentSentences() {
+      const raw = document.getElementById("docInput").value.trim();
+      if (!raw) { alert("Hãy nhập đoạn văn tiếng Anh trước nhé!"); return; }
+      const protectedText = raw.replace(/\b(Mr|Mrs|Ms|Dr|Prof)\./g, "$1<DOT>");
+      docSentences = protectedText.split(/(?<=[.!?])\s+|\n+/).map(s => s.replace(/<DOT>/g, ".").trim()).filter(Boolean);
+      renderDocSentences();
+    }
+    function renderDocSentences() {
+      const el = document.getElementById("docSentenceList");
+      el.innerHTML = docSentences.length ? docSentences.map((s, i) => renderPromptCard("doc_" + i, `Câu ${i + 1}`, "", s, "", "")).join("") : "";
+    }
+    function loadTxtFile(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { document.getElementById("docInput").value = reader.result || ""; splitDocumentSentences(); };
+      reader.readAsText(file);
+    }
+
+    /* TAB 2: VOCAB & SRS */
+    function updateDueCounts() {
+      const now = Date.now();
+      const dueCount = vocabList.filter(v => (v.nextReviewAt || 0) <= now).length;
+      document.getElementById("dueCountTop").textContent = dueCount;
+      document.getElementById("dueWordsCount").textContent = dueCount;
+      document.getElementById("totalWordsCount").textContent = vocabList.length;
+    }
+    function setVocabSection(sec) {
+      document.getElementById("vsub-notebook").classList.toggle("active", sec === "notebook");
+      document.getElementById("vsub-flashcard").classList.toggle("active", sec === "flashcard");
+      document.getElementById("vocab-notebook-view").style.display = sec === "notebook" ? "block" : "none";
+      document.getElementById("vocab-flashcard-view").style.display = sec === "flashcard" ? "block" : "none";
+      if (sec === "flashcard") renderFlashcard();
+    }
+    function renderVocabList() {
+      const q = (document.getElementById("vocabSearch").value || "").trim().toLowerCase();
+      const filter = document.getElementById("vocabFilter").value;
+      const now = Date.now();
+      const filtered = vocabList.filter(v => {
+        const matchQ = !q || v.word.toLowerCase().includes(q) || v.meaning.toLowerCase().includes(q);
+        const isDue = (v.nextReviewAt || 0) <= now;
+        if (filter === "due") return matchQ && isDue;
+        if (filter === "mastered") return matchQ && !isDue;
+        return matchQ;
+      });
+      document.getElementById("vocabGrid").innerHTML = filtered.map(v => {
+        const isDue = (v.nextReviewAt || 0) <= now;
+        return `
+          <div class="vocab-card">
+            <div>
+              <div class="row between">
+                <div>
+                  <strong style="font-size:1.1rem;color:var(--primary-dark);">${escapeHtml(v.word)}</strong>
+                  <span class="pos-tag">${escapeHtml(v.pos || "noun")}</span>
+                </div>
+                <span class="srs-badge ${isDue ? "srs-due" : "srs-ok"}">${isDue ? "Đến hạn ôn" : escapeHtml(v.intervalLabel || "Đã ôn")}</span>
+              </div>
+              ${v.phonetic ? `<div class="ipa">${escapeHtml(v.phonetic)}</div>` : ""}
+              <div style="font-weight:700;margin-top:4px;">${escapeHtml(v.meaning)}</div>
+              ${v.example ? `<div class="vi-note" style="margin-top:4px;font-style:italic;">"${escapeHtml(v.example)}"</div>` : ""}
+            </div>
+            <div class="row between" style="margin-top:6px;">
+              <button class="btn btn-soft btn-sm" onclick="speakText(decodeURIComponent('${encodeURIComponent(v.word)}'))">🔊 Nghe</button>
+              <div class="row">
+                <button class="btn btn-outline btn-sm" onclick="openWordModal(${v.id})">Sửa</button>
+                <button class="btn btn-outline btn-sm" style="color:var(--danger);" onclick="deleteWord(${v.id})">Xóa</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("") || `<div class="card">Không có từ vựng phù hợp.</div>`;
+    }
+
+    function renderFlashcard() {
+      const now = Date.now();
+      const dueWords = vocabList.filter(v => (v.nextReviewAt || 0) <= now);
+      const container = document.getElementById("flashcardContainer");
+      if (!dueWords.length) {
+        container.innerHTML = `<div class="card" style="text-align:center;padding:32px;"><div style="font-size:2.4rem;">🎉</div><h3>Bạn đã ôn xong toàn bộ từ đến hạn hôm nay!</h3><p class="vi-note">Hãy thêm từ mới vào sổ tay hoặc sang Tab Kho trò chơi để luyện tập thêm.</p></div>`;
+        return;
+      }
+      const card = dueWords[0];
+      container.innerHTML = `
+        <div class="vi-note" style="text-align:center;margin-bottom:10px;">Còn <strong>${dueWords.length}</strong> thẻ cần ôn • Chạm vào thẻ để lật</div>
+        <div class="flashcard" onclick="flashcardFlipped = !flashcardFlipped; renderFlashcard();">
+          <div class="fc-word">${escapeHtml(card.word)}</div>
+          ${card.phonetic ? `<div class="ipa">${escapeHtml(card.phonetic)}</div>` : ""}
+          <div style="margin-top:8px;">
+            <button class="btn btn-soft btn-sm" onclick="event.stopPropagation(); speakText(decodeURIComponent('${encodeURIComponent(card.word)}'))">🔊 Phát âm từ</button>
+          </div>
+          ${flashcardFlipped ? `
+            <hr style="width:80%;border:none;border-top:1px solid #dbeafe;margin:16px 0;" />
+            <div style="font-size:1.25rem;font-weight:800;color:var(--accent);">${escapeHtml(card.meaning)}</div>
+            <div class="pos-tag" style="margin-top:6px;">${escapeHtml(card.pos || "noun")}</div>
+            ${card.example ? `<p class="vi-note" style="margin-top:10px;">"${escapeHtml(card.example)}"</p>` : ""}
+          ` : `<p class="vi-note" style="margin-top:20px;">👆 Chạm để xem nghĩa tiếng Việt</p>`}
+        </div>
+        <div class="row" style="justify-content:center;margin-top:16px;">
+          <button class="btn btn-danger" onclick="rateFlashcard(${card.id}, 'forgot')">Quên / Khó (1 phút)</button>
+          <button class="btn btn-warn" onclick="rateFlashcard(${card.id}, 'vague')">Nhớ mang máng (1 ngày)</button>
+          <button class="btn btn-accent" onclick="rateFlashcard(${card.id}, 'mastered')">Đã thuộc lòng (3-7 ngày)</button>
+        </div>
+      `;
+    }
+
+    function rateFlashcard(id, rating) {
+      const now = Date.now();
+      vocabList = vocabList.map(v => {
+        if (v.id !== id) return v;
+        if (rating === "forgot") return { ...v, nextReviewAt: now + 60_000, intervalLabel: "1 phút", reps: 0 };
+        if (rating === "vague") return { ...v, nextReviewAt: now + 86_400_000, intervalLabel: "1 ngày", reps: (v.reps || 0) + 1 };
+        const days = (v.reps || 0) <= 0 ? 3 : (v.reps === 1 ? 5 : 7);
+        return { ...v, nextReviewAt: now + days * 86_400_000, intervalLabel: days + " ngày", reps: (v.reps || 0) + 1 };
+      });
+      flashcardFlipped = false;
+      saveVocab();
+      renderFlashcard();
+      renderVocabList();
+    }
+
+    function openWordModal(id) {
+      const modal = document.getElementById("wordModal");
+      if (id) {
+        const w = vocabList.find(v => v.id === id);
+        if (!w) return;
+        document.getElementById("modalTitle").textContent = "Chỉnh sửa từ vựng";
+        document.getElementById("editWordId").value = w.id;
+        document.getElementById("fWord").value = w.word;
+        document.getElementById("fPos").value = w.pos || "noun";
+        document.getElementById("fPhonetic").value = w.phonetic || "";
+        document.getElementById("fMeaning").value = w.meaning;
+        document.getElementById("fExample").value = w.example || "";
+      } else {
+        document.getElementById("modalTitle").textContent = "Thêm từ vựng mới";
+        document.getElementById("editWordId").value = "";
+        document.getElementById("fWord").value = "";
+        document.getElementById("fPos").value = "noun";
+        document.getElementById("fPhonetic").value = "";
+        document.getElementById("fMeaning").value = "";
+        document.getElementById("fExample").value = "";
+      }
+      modal.classList.add("open");
+    }
+    function closeWordModal() { document.getElementById("wordModal").classList.remove("open"); }
+    function saveWord() {
+      const id = document.getElementById("editWordId").value;
+      const word = document.getElementById("fWord").value.trim();
+      const pos = document.getElementById("fPos").value;
+      const phonetic = document.getElementById("fPhonetic").value.trim();
+      const meaning = document.getElementById("fMeaning").value.trim();
+      const example = document.getElementById("fExample").value.trim();
+      if (!word || !meaning) { alert("Vui lòng nhập đầy đủ từ tiếng Anh và nghĩa tiếng Việt!"); return; }
+      if (id) vocabList = vocabList.map(v => v.id === Number(id) ? { ...v, word, pos, phonetic, meaning, example } : v);
+      else vocabList.unshift({ id: Date.now(), word, pos, phonetic, meaning, example, nextReviewAt: 0, intervalLabel: "Chưa ôn", reps: 0 });
+      closeWordModal();
+      saveVocab();
+      renderVocabList();
+    }
+    function deleteWord(id) {
+      if (!confirm("Xóa từ này khỏi sổ tay?")) return;
+      vocabList = vocabList.filter(v => v.id !== id);
+      saveVocab();
+      renderVocabList();
+    }
+
+    /* TAB 3: GAMES & LEADERBOARD & CSV */
+    function selectGame(g) {
+      currentGame = g;
+      clearInterval(quizTimer);
+      document.querySelectorAll("#panel-games .subtab").forEach(b => b.classList.toggle("active", b.dataset.game === g));
+      if (g === "quiz") startQuiz();
+      else if (g === "fill") startFill();
+      else if (g === "dictation") startDictation();
+      else if (g === "scramble") startScramble();
+      else renderLeaderboard();
+    }
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startQuiz() {
+      const pool = shuffle(vocabList).slice(0, Math.min(8, vocabList.length));
+      gameState = { initialized: true, items: pool, idx: 0, score: 0, selected: null, seconds: 15, options: [] };
+      buildQuizOptions();
+      renderQuiz();
+    }
+    function buildQuizOptions() {
+      const target = gameState.items[gameState.idx];
+      if (!target) return;
+      const distractors = shuffle(vocabList.filter(v => v.id !== target.id)).slice(0, 3);
+      gameState.options = shuffle([target, ...distractors]);
+      gameState.selected = null;
+      gameState.seconds = 15;
+      clearInterval(quizTimer);
+      quizTimer = setInterval(() => {
+        if (currentGame !== "quiz" || gameState.selected !== null) return;
+        gameState.seconds--;
+        const timerEl = document.getElementById("quizTimerText");
+        if (timerEl) timerEl.textContent = gameState.seconds + "s";
+        if (gameState.seconds <= 0) { clearInterval(quizTimer); gameState.selected = -1; renderQuiz(); }
+      }, 1000);
+    }
+    function renderQuiz() {
+      const stage = document.getElementById("gameStage");
+      if (gameState.idx >= gameState.items.length) {
+        clearInterval(quizTimer);
+        pushLeaderboard("Quiz 4 đáp án", gameState.score, gameState.items.length);
+        stage.innerHTML = `<div style="text-align:center;padding:20px;"><h3>Hoàn thành Quiz! Điểm: ${gameState.score}/${gameState.items.length}</h3><button class="btn btn-primary" onclick="startQuiz()">Chơi lại</button></div>`;
+        return;
+      }
+      const target = gameState.items[gameState.idx];
+      stage.innerHTML = `
+        <div class="row between"><strong>Câu ${gameState.idx + 1}/${gameState.items.length} • Điểm: ${gameState.score}</strong><span class="score-pill" id="quizTimerText">${gameState.seconds}s</span></div>
+        <h2 style="margin:14px 0 4px;color:var(--primary-dark);">${escapeHtml(target.word)}</h2>
+        <div class="vi-note">${escapeHtml(target.phonetic || "")}</div>
+        <div class="quiz-options">
+          ${gameState.options.map(opt => {
+            let cls = "";
+            if (gameState.selected !== null) {
+              if (opt.id === target.id) cls = "correct";
+              else if (opt.id === gameState.selected) cls = "wrong";
+            }
+            return `<button class="quiz-opt ${cls}" ${gameState.selected !== null ? "disabled" : ""} onclick="answerQuiz(${opt.id})">${escapeHtml(opt.meaning)}</button>`;
+          }).join("")}
+        </div>
+        ${gameState.selected !== null ? `<div style="margin-top:14px;"><button class="btn btn-primary" onclick="gameState.idx++; buildQuizOptions(); renderQuiz();">Câu tiếp theo →</button></div>` : ""}
+      `;
+    }
+    function answerQuiz(optId) {
+      clearInterval(quizTimer);
+      gameState.selected = optId;
+      if (optId === gameState.items[gameState.idx].id) gameState.score++;
+      renderQuiz();
+    }
+
+    function startFill() {
+      const pool = shuffle(vocabList.filter(v => (v.example || "").toLowerCase().includes(v.word.toLowerCase()))).slice(0, 6);
+      gameState = { initialized: true, items: pool, idx: 0, score: 0, checked: null };
+      renderFill();
+    }
+    function renderFill() {
+      const stage = document.getElementById("gameStage");
+      if (!gameState.items.length) { stage.innerHTML = "Hãy thêm câu ví dụ cho từ vựng để chơi Điền từ."; return; }
+      if (gameState.idx >= gameState.items.length) {
+        pushLeaderboard("Điền từ", gameState.score, gameState.items.length);
+        stage.innerHTML = `<div style="text-align:center;"><h3>Xong phần Điền từ! Điểm: ${gameState.score}/${gameState.items.length}</h3><button class="btn btn-primary" onclick="startFill()">Chơi lại</button></div>`;
+        return;
+      }
+      const item = gameState.items[gameState.idx];
+      const masked = item.example.replace(new RegExp(item.word, "ig"), "_____");
+      stage.innerHTML = `
+        <strong>Câu ${gameState.idx + 1}/${gameState.items.length} • Điểm: ${gameState.score}</strong>
+        <p style="font-size:1.1rem;font-weight:700;margin:12px 0;">${escapeHtml(masked)}</p>
+        <div class="vi-note">Gợi ý nghĩa: <strong>${escapeHtml(item.meaning)}</strong></div>
+        <div class="row" style="margin-top:12px;">
+          <input type="text" id="fillInput" placeholder="Nhập từ còn thiếu..." style="max-width:280px;" />
+          <button class="btn btn-primary" onclick="checkFill()">Kiểm tra</button>
+        </div>
+        ${gameState.checked !== null ? `<div style="margin-top:12px;font-weight:700;color:${gameState.checked ? "var(--accent)" : "var(--danger)"};">${gameState.checked ? "✅ Chính xác!" : "❌ Đáp án đúng: " + escapeHtml(item.word)}</div><button class="btn btn-outline" style="margin-top:10px;" onclick="gameState.idx++; gameState.checked=null; renderFill();">Tiếp tục →</button>` : ""}
+      `;
+    }
+    function checkFill() {
+      if (gameState.checked !== null) return;
+      const val = (document.getElementById("fillInput").value || "").trim().toLowerCase();
+      gameState.checked = val === gameState.items[gameState.idx].word.toLowerCase();
+      if (gameState.checked) gameState.score++;
+      renderFill();
+    }
+
+    function startDictation() {
+      gameState = { initialized: true, items: shuffle(vocabList).slice(0, 6), idx: 0, score: 0, checked: null };
+      renderDictation();
+    }
+    function renderDictation() {
+      const stage = document.getElementById("gameStage");
+      if (gameState.idx >= gameState.items.length) {
+        pushLeaderboard("Nghe & Gõ", gameState.score, gameState.items.length);
+        stage.innerHTML = `<div style="text-align:center;"><h3>Hoàn thành Nghe & Gõ! Điểm: ${gameState.score}/${gameState.items.length}</h3><button class="btn btn-primary" onclick="startDictation()">Chơi lại</button></div>`;
+        return;
+      }
+      const item = gameState.items[gameState.idx];
+      stage.innerHTML = `
+        <strong>Câu ${gameState.idx + 1}/${gameState.items.length} • Điểm: ${gameState.score}</strong>
+        <div style="margin:14px 0;" class="row">
+          <button class="btn btn-soft" onclick="speakText(decodeURIComponent('${encodeURIComponent(item.word)}'))">🔊 Nghe phát âm từ</button>
+          <span class="vi-note">Nghĩa: ${escapeHtml(item.meaning)}</span>
+        </div>
+        <div class="row">
+          <input type="text" id="dictInput" placeholder="Gõ lại từ tiếng Anh vừa nghe..." style="max-width:280px;" />
+          <button class="btn btn-primary" onclick="checkDictation()">Kiểm tra</button>
+        </div>
+        ${gameState.checked !== null ? `<div style="margin-top:12px;font-weight:700;color:${gameState.checked ? "var(--accent)" : "var(--danger)"};">${gameState.checked ? "✅ Chính xác!" : "❌ Đáp án đúng: " + escapeHtml(item.word)}</div><button class="btn btn-outline" style="margin-top:10px;" onclick="gameState.idx++; gameState.checked=null; renderDictation();">Tiếp tục →</button>` : ""}
+      `;
+    }
+    function checkDictation() {
+      if (gameState.checked !== null) return;
+      const val = (document.getElementById("dictInput").value || "").trim().toLowerCase();
+      gameState.checked = val === gameState.items[gameState.idx].word.toLowerCase();
+      if (gameState.checked) gameState.score++;
+      renderDictation();
+    }
+
+    function startScramble() {
+      const items = shuffle(vocabList).slice(0, 6);
+      gameState = { initialized: true, items, idx: 0, score: 0, pool: [], picked: [], checked: null };
+      prepScrambleWord();
+      renderScramble();
+    }
+    function prepScrambleWord() {
+      const item = gameState.items[gameState.idx];
+      if (!item) return;
+      gameState.pool = shuffle(item.word.toUpperCase().split("").map((c, i) => ({ id: i, c })));
+      gameState.picked = [];
+      gameState.checked = null;
+    }
+    function renderScramble() {
+      const stage = document.getElementById("gameStage");
+      if (gameState.idx >= gameState.items.length) {
+        pushLeaderboard("Xếp chữ", gameState.score, gameState.items.length);
+        stage.innerHTML = `<div style="text-align:center;"><h3>Hoàn thành Xếp chữ! Điểm: ${gameState.score}/${gameState.items.length}</h3><button class="btn btn-primary" onclick="startScramble()">Chơi lại</button></div>`;
+        return;
+      }
+      const item = gameState.items[gameState.idx];
+      stage.innerHTML = `
+        <strong>Câu ${gameState.idx + 1}/${gameState.items.length} • Điểm: ${gameState.score}</strong>
+        <div class="vi-note" style="margin-top:8px;">Nghĩa: <strong>${escapeHtml(item.meaning)}</strong></div>
+        <div class="tile-row">${gameState.picked.map((t, i) => `<button class="letter-tile placed" onclick="unpickTile(${i})">${t.c}</button>`).join("") || `<span class="vi-note">Bấm vào các chữ cái bên dưới để ghép từ...</span>`}</div>
+        <div class="tile-row">${gameState.pool.map((t, i) => `<button class="letter-tile" onclick="pickTile(${i})">${t.c}</button>`).join("")}</div>
+        <div class="row" style="justify-content:center;margin-top:12px;">
+          <button class="btn btn-primary" onclick="checkScramble()">Kiểm tra</button>
+          <button class="btn btn-outline" onclick="prepScrambleWord(); renderScramble();">Xếp lại</button>
+        </div>
+        ${gameState.checked !== null ? `<div style="text-align:center;margin-top:12px;font-weight:700;color:${gameState.checked ? "var(--accent)" : "var(--danger)"};">${gameState.checked ? "✅ Chuẩn rồi!" : "❌ Đáp án: " + escapeHtml(item.word)}</div><div style="text-align:center;margin-top:8px;"><button class="btn btn-outline" onclick="gameState.idx++; prepScrambleWord(); renderScramble();">Câu tiếp theo →</button></div>` : ""}
+      `;
+    }
+    function pickTile(i) { if (gameState.checked === null) { gameState.picked.push(gameState.pool.splice(i, 1)[0]); renderScramble(); } }
+    function unpickTile(i) { if (gameState.checked === null) { gameState.pool.push(gameState.picked.splice(i, 1)[0]); renderScramble(); } }
+    function checkScramble() {
+      if (gameState.checked !== null) return;
+      gameState.checked = gameState.picked.map(t => t.c).join("").toLowerCase() === gameState.items[gameState.idx].word.toLowerCase();
+      if (gameState.checked) gameState.score++;
+      renderScramble();
+    }
+
+    function renderLeaderboard() {
+      const stage = document.getElementById("gameStage");
+      if (!leaderboard.length) {
+        stage.innerHTML = `<div class="vi-note">Chưa có lượt chơi nào. Hãy hoàn thành một trò chơi để ghi tên vào Bảng xếp hạng!</div>`;
+        return;
+      }
+      stage.innerHTML = `
+        <div class="row between" style="margin-bottom:10px;">
+          <h3 style="margin:0;">🏆 Bảng xếp hạng gần đây</h3>
+          <button class="btn btn-outline btn-sm" onclick="leaderboard=[]; localStorage.removeItem(STORAGE_LEADERBOARD); renderLeaderboard();">Xóa lịch sử</button>
+        </div>
+        <table>
+          <thead><tr><th>Người chơi</th><th>Trò chơi</th><th>Điểm</th><th>Thời gian</th></tr></thead>
+          <tbody>${leaderboard.map(r => `<tr><td><strong>${escapeHtml(r.player)}</strong></td><td>${escapeHtml(r.game)}</td><td>${r.score}/${r.total}</td><td>${escapeHtml(r.date)}</td></tr>`).join("")}</tbody>
+        </table>
+      `;
+    }
+
+    function exportVocabCsv() {
+      const header = ["Word", "Part of Speech", "Phonetic", "Meaning (VI)", "Example", "SRS Interval"];
+      const rows = vocabList.map(v => [v.word, v.pos, v.phonetic, v.meaning, v.example, v.intervalLabel].map(cell => `"${String(cell || "").replace(/"/g, '""')}"`).join(","));
+      const csv = "\uFEFF" + header.join(",") + "\n" + rows.join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "TDSpeak_Vocabulary.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /* VOICE MODE: "BẠN THÂN 1-1" (Web Speech API + Gemini REST API, zero conversation text on screen) */
+    let voiceCallActive = false;
+    let voicePhase = "idle"; // idle | speaking | listening | thinking
+    let voiceRecognizer = null;
+    let voiceHistory = [];
+    let ttsWatchdogTimer = null;
+
+    function getStoredGeminiKey() {
+      return (localStorage.getItem(STORAGE_GEMINI_KEY) || "").trim();
+    }
+    function toggleApiKeyDrawer(forceOpen) {
+      const drawer = document.getElementById("voiceKeyDrawer");
+      const open = typeof forceOpen === "boolean" ? forceOpen : !drawer.classList.contains("open");
+      drawer.classList.toggle("open", open);
+      if (open) document.getElementById("geminiApiKeyInput").value = getStoredGeminiKey();
+    }
+    function saveGeminiKey() {
+      const val = (document.getElementById("geminiApiKeyInput").value || "").trim();
+      if (!val) { showVoiceError("Vui lòng dán Gemini API Key hợp lệ."); return; }
+      localStorage.setItem(STORAGE_GEMINI_KEY, val);
+      toggleApiKeyDrawer(false);
+      hideVoiceError();
+      startVoiceCall();
+    }
+
+    function setVoicePhase(phase) {
+      voicePhase = phase;
+      const orb = document.getElementById("voiceOrb");
+      const statusEl = document.getElementById("voiceStatusLabel");
+      const micBtn = document.getElementById("voiceMicBtn");
+      orb.dataset.phase = phase;
+      micBtn.classList.toggle("active", phase === "listening");
+      const labels = {
+        idle: "Bạn thân 1-1 • Chạm để nói",
+        speaking: "Bạn thân 1-1 • Đang nói",
+        listening: "Bạn thân 1-1 • Đang nghe",
+        thinking: "Bạn thân 1-1 • Đang phản hồi..."
+      };
+      statusEl.textContent = labels[phase] || "Bạn thân 1-1";
+    }
+    function showVoiceError(msg) {
+      const box = document.getElementById("voiceErrorBox");
+      box.textContent = msg;
+      box.classList.add("show");
+    }
+    function hideVoiceError() {
+      const box = document.getElementById("voiceErrorBox");
+      box.textContent = "";
+      box.classList.remove("show");
+    }
+
+    function openVoiceMode() {
+      document.getElementById("voiceOverlay").classList.add("open");
+      hideVoiceError();
+      if (!getStoredGeminiKey()) {
+        toggleApiKeyDrawer(true);
+        setVoicePhase("idle");
+        showVoiceError("Nhập Gemini API Key của bạn ở trên rồi bấm Lưu & Bắt đầu.");
+        return;
+      }
+      toggleApiKeyDrawer(false);
+      startVoiceCall();
+    }
+
+    function closeVoiceMode() {
+      voiceCallActive = false;
+      clearTimeout(ttsWatchdogTimer);
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      if (voiceRecognizer) {
+        try { voiceRecognizer.abort(); } catch (_) {}
+        voiceRecognizer = null;
+      }
+      voiceHistory = [];
+      setVoicePhase("idle");
+      document.getElementById("voiceOverlay").classList.remove("open");
+    }
+
+    function startVoiceCall() {
+      voiceCallActive = true;
+      voiceHistory = [];
+      hideVoiceError();
+      speakVoiceLine("Hey! Good to hear from you. What's on your mind today?", true);
+    }
+
+    function handleOrbTap() {
+      if (!getStoredGeminiKey()) { toggleApiKeyDrawer(true); return; }
+      toggleVoiceMic();
+    }
+
+    function toggleVoiceMic() {
+      if (!voiceCallActive) {
+        if (!getStoredGeminiKey()) { toggleApiKeyDrawer(true); return; }
+        startVoiceCall();
+        return;
+      }
+      if (voicePhase === "thinking") return;
+      clearTimeout(ttsWatchdogTimer);
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      if (voicePhase === "listening" && voiceRecognizer) {
+        try { voiceRecognizer.stop(); } catch (_) {}
+      } else {
+        startVoiceListening();
+      }
+    }
+
+    function speakVoiceLine(text, isGreeting = false) {
+      if (!voiceCallActive) return;
+      clearTimeout(ttsWatchdogTimer);
+      if (!("speechSynthesis" in window)) {
+        startVoiceListening();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      setVoicePhase("speaking");
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "en-US";
+      utter.rate = 1.0;
+
+      let advanced = false;
+      const moveNext = () => {
+        if (advanced || !voiceCallActive) return;
+        advanced = true;
+        clearTimeout(ttsWatchdogTimer);
+        setTimeout(() => {
+          if (voiceCallActive && voicePhase !== "thinking") startVoiceListening();
+        }, 180);
+      };
+
+      utter.onend = moveNext;
+      utter.onerror = moveNext;
+      const fallbackMs = isGreeting ? 4800 : Math.min(12000, Math.max(4500, text.length * 85));
+      ttsWatchdogTimer = setTimeout(moveNext, fallbackMs);
+
+      try {
+        window.speechSynthesis.speak(utter);
+      } catch (_) {
+        moveNext();
+      }
+    }
+
+    function startVoiceListening() {
+      if (!voiceCallActive) return;
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        setVoicePhase("idle");
+        showVoiceError("Trình duyệt này chưa hỗ trợ Web Speech Recognition. Hãy dùng Chrome/Edge.");
+        return;
+      }
+      if (voiceRecognizer) {
+        try { voiceRecognizer.abort(); } catch (_) {}
+      }
+      hideVoiceError();
+      const rec = new SpeechRec();
+      voiceRecognizer = rec;
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      setVoicePhase("listening");
+
+      rec.onresult = (e) => {
+        const spoken = (e.results?.[0]?.[0]?.transcript || "").trim();
+        if (!voiceCallActive) return;
+        if (spoken) {
+          sendVoiceToGemini(spoken);
+        } else {
+          setVoicePhase("idle");
+        }
+      };
+      rec.onerror = (e) => {
+        if (!voiceCallActive) return;
+        setVoicePhase("idle");
+        if (e.error === "not-allowed") {
+          showVoiceError("Trình duyệt chưa được cấp quyền Micro.");
+        } else if (e.error === "no-speech") {
+          showVoiceError("Chưa nghe thấy giọng nói. Chạm vào khối cầu để nói tiếp.");
+        } else {
+          showVoiceError("Lỗi micro (" + e.error + "). Chạm khối cầu để thử lại.");
+        }
+      };
+      rec.onend = () => {
+        if (voiceCallActive && voicePhase === "listening") {
+          setVoicePhase("idle");
+        }
+      };
+      try {
+        rec.start();
+      } catch (err) {
+        setVoicePhase("idle");
+        showVoiceError("Không thể khởi động micro: " + err.message);
+      }
+    }
+
+    async function sendVoiceToGemini(userMessage) {
+      const apiKey = getStoredGeminiKey();
+      if (!apiKey) {
+        setVoicePhase("idle");
+        toggleApiKeyDrawer(true);
+        showVoiceError("Chưa có Gemini API Key.");
+        return;
+      }
+
+      setVoicePhase("thinking");
+      hideVoiceError();
+
+      const recentContext = voiceHistory.slice(-4).map(t => `Friend: ${t.user}\nYou: ${t.ai}`).join("\n");
+      const prompt = [
+        "You are a friendly, casual English-speaking best friend on a 1-1 voice call with a student.",
+        "Keep your response conversational, warm, encouraging, and short (1-2 spoken English sentences).",
+        "Do NOT correct grammar, do NOT score, and do NOT use bullet points or markdown.",
+        recentContext ? "\nRecent call:\n" + recentContext : "",
+        `\nFriend says: "${userMessage}"\nReply naturally:`
+      ].join("\n");
+
+      try {
+        const aiReply = await callGeminiWithFallback(apiKey, prompt);
+        if (!voiceCallActive) return;
+        voiceHistory.push({ user: userMessage, ai: aiReply });
+        speakVoiceLine(aiReply);
+      } catch (err) {
+        if (!voiceCallActive) return;
+        setVoicePhase("idle");
+        showVoiceError(err.message || "Không thể kết nối Gemini API.");
+      }
+    }
+
+    async function callGeminiWithFallback(apiKey, prompt) {
+      let lastError = null;
+      for (const model of GEMINI_MODELS) {
+        try {
+          return await callGeminiSingle(model, apiKey, prompt);
+        } catch (err) {
+          lastError = err;
+          if (!err.transient) throw err;
+        }
+      }
+      throw lastError || new Error("Không thể kết nối tới Gemini API.");
+    }
+
+    async function callGeminiSingle(model, apiKey, prompt) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 14000);
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg = data?.error?.message || `Lỗi Gemini (${res.status})`;
+          const err = new Error(`Lỗi Gemini (${res.status}): ${msg}`);
+          err.transient = res.status === 503 || res.status === 429;
+          throw err;
+        }
+        const text = (data?.candidates?.[0]?.content?.parts?.[0]?.text || "").trim();
+        if (!text) throw new Error("Gemini trả về phản hồi rỗng.");
+        return text;
+      } catch (err) {
+        if (err.name === "AbortError") {
+          const timeoutErr = new Error("Kết nối Gemini quá thời gian chờ.");
+          timeoutErr.transient = true;
+          throw timeoutErr;
+        }
+        throw err;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+    }
+
+    // Init
+    updateDueCounts();
+    renderTopics();
+    renderVocabList();
+  </script>
+</body>
+</html>

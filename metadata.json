@@ -1,0 +1,6 @@
+{
+  "name": "TDSpeak",
+  "description": "Ứng dụng hỗ trợ học sinh luyện nói tiếng Anh và học từ vựng theo phương pháp Lặp lại ngắt quãng (SRS).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

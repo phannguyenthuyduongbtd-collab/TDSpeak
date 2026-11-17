@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TDSpeak</string>
+    <string name="tab_speaking">Luyện nói AI</string>
+    <string name="tab_vocab">Sổ tay &amp; SRS</string>
+    <string name="tab_games">Kho trò chơi</string>
+    <string name="speaking_hero_desc">Minh họa luyện nói tiếng Anh TDSpeak</string>
+    <string name="srs_complete_desc">Hoàn thành ôn tập từ vựng hôm nay</string>
+    <string name="mic_permission_needed">Cần quyền micro để ghi âm và chấm điểm phát âm của bạn.</string>
+    <string name="mic_permission_grant">Cấp quyền Micro</string>
+</resources>
